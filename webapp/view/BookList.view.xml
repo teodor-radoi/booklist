@@ -9,7 +9,9 @@
 			sorter: {
 				path: 'Title'
 			}
-		}">
+		}"
+		growing="true"
+		growingThreshold="10">
 	
 		<columns>
 			<Column>
