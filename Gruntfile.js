@@ -2,9 +2,16 @@
 
 module.exports = function(grunt) {
 
+	// get grunt options (console command parameters)
+	var sUser = grunt.option('user');
+	var sPwd = grunt.option('pwd');
+	var sClient = grunt.option('client');
+
 	// load grunt plugins
     require('jit-grunt')(grunt, {
-        configureProxies: 'grunt-connect-proxy'
+		openui5_preload: 'grunt-openui5',
+		configureProxies: 'grunt-connect-proxy',		
+        nwabap_ui5uploader: 'grunt-nwabap-ui5uploader'
 	});
 	
 
@@ -95,7 +102,7 @@ module.exports = function(grunt) {
 				options: {
 					resources: {
 						cwd: 'webapp',
-						prefix: 'simple-app',
+						prefix: 'org.ubb.books',
 						src: [
 							'**/*.js',
 							'**/*.fragment.html',
@@ -112,6 +119,36 @@ module.exports = function(grunt) {
 					dest: 'dist'
 				},
 				components: true
+			}
+		},
+
+		nwabap_ui5uploader: {
+			upload: {
+				options: {
+					/*I42*/
+                    conn: {
+						client: '801',
+						server: 'http://i42lp1.informatik.tu-muenchen.de:8000/',
+                        // transportRequest: 'I42K902395',
+                        useStrictSSL: false,
+                        port: 8000
+                    },
+					auth: {
+						user: sUser,
+						pwd: sPwd
+					},
+					ui5: {
+						language: 'EN',
+						transportno: 'I42K902395',
+						package: 'Z801_DEV_PACK_SJOO',
+						bspcontainer: 'Z801_BOOKS_SJOO',
+						bspcontainer_text: 'Books UI5 app Szila'
+					},
+					resources: {
+						cwd: 'dist',
+						src: '**/*.*'
+					}
+				}
 			}
 		},
 
@@ -156,6 +193,8 @@ module.exports = function(grunt) {
 
 	// Build task
 	grunt.registerTask('build', ['clean:dist', 'openui5_preload', 'copy']);
+
+    grunt.registerTask('deploy', ['build', 'nwabap_ui5uploader:upload']);
 
 	// Default task
 	grunt.registerTask('default', ['serve']);
